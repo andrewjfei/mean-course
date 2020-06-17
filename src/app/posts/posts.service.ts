@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Post } from './post.model';
 import { Subject } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable()
@@ -13,9 +14,20 @@ export class PostsService {
 
     getPosts() {
         this.http.get('http://localhost:3000/api/posts')
+        .pipe(
+            map((postData: { message: string, posts: any}) => {
+                return postData.posts.map((post) => {
+                    return {
+                        id: post._id,
+                        title: post.title,
+                        content: post.content
+                    };
+                });
+            })
+        )
         .subscribe(
-            (postData: { message: string, posts: Post[] }) => {
-                this.posts = postData.posts;
+            (posts: Post[] ) => {
+                this.posts = posts;
                 this.postsUpdated.next(this.posts.slice());
             }
         );
@@ -23,15 +35,39 @@ export class PostsService {
     }
 
     getPostUpdateListener() {
-
         // Returns an observable where we can't emit, but we can listen to
         return this.postsUpdated.asObservable();
     }
 
     addPost(title: string, content: string) {
         const post: Post = { id: null, title: title, content: content };
-        this.posts.push(post);
-        this.postsUpdated.next(this.posts.slice());
+        this.http.post('http://localhost:3000/api/posts', post)
+        .subscribe(
+            (res: { message: string, postId: string }) => {
+                const postId = res.postId;
+                post.id = postId;
+                this.posts.push(post);
+                this.postsUpdated.next(this.posts.slice());
+            }
+        );
+    }
+
+    deletePost(postId: string) {
+        this.http.delete('http://localhost:3000/api/posts/' + postId)
+        .subscribe(
+            (res: { message: string }) => {
+                const updatedPosts = this.posts.filter(
+                    (post: Post) => {
+                        if (post.id !== postId) {
+                            return post;
+                        }
+                    }
+                );
+
+                this.posts = updatedPosts;
+                this.postsUpdated.next(this.posts.slice());
+            }
+        );
     }
 
 }
