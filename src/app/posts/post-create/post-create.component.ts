@@ -4,6 +4,7 @@ import { PostsService } from '../posts.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Post } from '../post.model';
 import { mimeType } from './mime-type.validator';
+import { timeStamp } from 'console';
 
 @Component({
   selector: 'app-post-create',
@@ -41,8 +42,8 @@ export class PostCreateComponent implements OnInit {
             setTimeout(() => {
               this.isLoading = false;
             }, 2000);
-            this.post = { id: postData.post._id, title: postData.post.title, content: postData.post.content };
-            this.form.setValue({ title: this.post.title, content: this.post.content });
+            this.post = { id: postData.post._id, title: postData.post.title, content: postData.post.content, imagePath: postData.imagePath };
+            this.form.setValue({ title: this.post.title, content: this.post.content, image: this.post.imagePath });
           });
         } else {
           this.mode = 'create';
@@ -59,9 +60,9 @@ export class PostCreateComponent implements OnInit {
 
     this.isLoading = true;
     if (this.mode === 'edit') {
-      this.postsService.updatePost(this.postId, this.form.value.title, this.form.value.content);
+      this.postsService.updatePost(this.postId, this.form.value.title, this.form.value.content, this.form.value.image);
     } else {
-      this.postsService.addPost(this.form.value.title, this.form.value.content);
+      this.postsService.addPost(this.form.value.title, this.form.value.content, this.form.value.image);
     }
 
     this.form.reset();
