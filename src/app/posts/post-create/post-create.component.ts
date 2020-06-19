@@ -41,7 +41,7 @@ export class PostCreateComponent implements OnInit {
             setTimeout(() => {
               this.isLoading = false;
             }, 2000);
-            this.post = { id: postData.post._id, title: postData.post.title, content: postData.post.content, imagePath: postData.imagePath };
+            this.post = { id: postData.post._id, title: postData.post.title, content: postData.post.content, imagePath: postData.imagePath, creator: postData.creator };
             this.form.setValue({ title: this.post.title, content: this.post.content, image: this.post.imagePath });
           });
         } else {
