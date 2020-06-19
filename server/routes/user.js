@@ -18,21 +18,21 @@ router.post('/signup', (req, res, next) => {
             res.status(201).json({
                 message: 'User created!',
                 result: result
-            })
-            .catch(err => {
-                res.status(500).json({
-                    error: err
-                });
             });
+        });
+    })
+    .catch(err => {
+        res.status(500).json({
+            error: err
         });
     });
 });
 
 router.post('/login', (req, res, next) => {
     let fetchedUser;
-    User.findOne({ email: res.body.email })
+    User.findOne({ email: req.body.email })
     .then(user => {
-        if (user) {
+        if (!user) {
             return res.status(401).json({
                 message: 'Auth failed.'
             });
@@ -52,7 +52,8 @@ router.post('/login', (req, res, next) => {
             { expiresIn: '1h' }
         );
         res.status(200).json({
-            token: token
+            token: token,
+            expiresIn: 3600
         });
     })
     .catch(err => {
